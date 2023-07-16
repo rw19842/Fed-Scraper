@@ -1,5 +1,14 @@
 import scrapy
+from fed_scraper.items import (
+    MeetingMinutes,
+    ImplementationNote,
+    Statement,
+    PressConference,
+)
 import re
+import pypdfium2 as pdfium
+import io
+import requests
 
 
 class FomcCalendarSpider(scrapy.Spider):
@@ -11,80 +20,139 @@ class FomcCalendarSpider(scrapy.Spider):
         year_panels = response.css(".panel-default")
         for year_panel in year_panels:
             meeting_year = year_panel.css("div div *::text").get()[:4]
+
             meeting_panels = year_panel.css(".fomc-meeting")
             for meeting_panel in meeting_panels:
                 meeting_month = meeting_panel.css(".fomc-meeting__month *::text").get()
                 meeting_date = meeting_panel.css(".fomc-meeting__date *::text").get()
+                meeting_date_str = format_meeting_date_str(
+                    meeting_date, meeting_month, meeting_year
+                )
 
                 minutes_panel = meeting_panel.css(".fomc-meeting__minutes")
                 if "HTML" in minutes_panel.css("a::text").getall():
-                    minutes_relative_url = minutes_panel.css("a::attr(href)").getall()[
+                    minutes = MeetingMinutes(meeting_date=meeting_date_str)
+
+                    minutes["url"] = minutes_panel.css("a::attr(href)").getall()[
                         minutes_panel.css("a::text").getall().index("HTML")
                     ]
-                    meeting_minutes_url = (
-                        "https://www.federalreserve.gov" + minutes_relative_url
-                    )
-                    yield response.follow(
-                        meeting_minutes_url, callback=self.parse_minutes
-                    )
 
-                    minutes_release_date = re.search(
+                    minutes["release_date"] = re.search(
                         r"(?<=\(Released )(.*?)(?=\))",
                         "".join(minutes_panel.css("*::text").getall()),
                     ).group()
 
+                    yield response.follow(
+                        minutes["url"],
+                        callback=self.parse_minutes,
+                        cb_kwargs={"minutes": minutes},
+                    )
+
                 statement_panel = meeting_panel.css(".col-lg-2")
                 for anchor in statement_panel.css("a"):
                     if anchor.css("::text").get() == "HTML":
-                        statement_relative_url = anchor.css("::attr(href)").get()
-                        statement_url = (
-                            "https://www.federalreserve.gov" + statement_relative_url
-                        )
+                        statement = Statement(meeting_date=meeting_date_str)
+
+                        statement["url"] = anchor.css("::attr(href)").get()
+
                         yield response.follow(
-                            statement_url, callback=self.parse_statement
+                            statement["url"],
+                            callback=self.parse_statement,
+                            cb_kwargs={"statement": statement},
                         )
 
                     if anchor.css("::text").get() == "Implementation Note":
-                        implementation_note_relative_url = anchor.css(
-                            "::attr(href)"
-                        ).get()
-                        implementation_note_url = (
-                            "https://www.federalreserve.gov"
-                            + implementation_note_relative_url
+                        implementation_note = ImplementationNote(
+                            meeting_date=meeting_date_str
                         )
+
+                        implementation_note["url"] = anchor.css("::attr(href)").get()
+
                         yield response.follow(
-                            implementation_note_url,
+                            implementation_note["url"],
                             callback=self.parse_implementation_note,
+                            cb_kwargs={"implementation_note": implementation_note},
                         )
 
                 press_conference_panel = meeting_panel.css(".col-lg-3")
                 for anchor in press_conference_panel.css("a"):
-                    if anchor.css("::text").get() == "Press Conference":
-                        press_conference_relative_url = anchor.css("::attr(href)").get()
-                        press_conference_url = (
-                            "https://www.federalreserve.gov"
-                            + press_conference_relative_url
+                    if (
+                        anchor.css("::text").get() == "Press Conference"
+                    ):  # TODO: This misses March 2020 press conferences
+                        press_conference = PressConference(
+                            meeting_date=meeting_date_str
                         )
+
+                        press_conference_page_url = anchor.css("::attr(href)").get()
+
                         yield response.follow(
-                            press_conference_url, callback=self.parse_press_conference
+                            press_conference_page_url,
+                            callback=self.parse_press_conference,
+                            cb_kwargs={"press_conference": press_conference},
                         )
 
-    def parse_minutes(self, response):
-        pass
+    def parse_minutes(self, response, minutes):
+        minutes["text"] = response.css("#article *::text").getall()
 
-    def parse_statement(self, response):
-        pass
+        yield minutes
 
-    def parse_press_conference(self, response):
-        pass
+    def parse_statement(self, response, statement):
+        statement["release_date"] = response.css(".article__time::text").get().strip()
+        statement["text"] = response.css(".col-md-8")[1:].css("*::text").getall()
 
-    def parse_implementation_note(self, response):
-        pass
+        yield statement
 
-    def parse_projections(self, response):
-        pass
+    def parse_press_conference(self, response, press_conference):
+        press_conference["release_date"] = re.search(
+            r"([A-Za-z]+ \d{1,2}, \d{4})", response.css("title::text").get()
+        ).group()
 
-    def parse_long_run_goals_and_MP_strategy(self, response):
-        # maybe easier to write a spider for:
-        # https://www.federalreserve.gov/monetarypolicy/historical-statements-on-longer-run-goals-and-monetary-policy-strategy.htm
-        pass
+        for anchor in response.css("div div p a"):
+            if (
+                "PRESS CONFERENCE TRANSCRIPT (PDF)"
+                in anchor.css("::text").get().upper()
+            ):
+                press_conference["url"] = anchor.css("::attr(href)").get()
+                break
+
+        press_conference["text"] = parse_pdf_from_url(
+            "https://www.federalreserve.gov" + press_conference["url"]
+        )
+
+        yield press_conference
+
+    def parse_implementation_note(self, response, implementation_note):
+        implementation_note[release_date] = (
+            response.css(".article__time::text").get().strip()
+        )
+
+        implementation_note["text"] = response.css(
+            ".row~ .row+ .row .col-xs-12 *::text"
+        ).getall()
+
+        yield implementation_note
+
+
+def parse_pdf_from_url(url, header_footer_size=65):
+    response = requests.get(url, stream=True)
+    document = pdfium.PdfDocument(io.BytesIO(response.content))
+
+    text = []
+    for page in document:
+        height = page.get_size()[1]
+        textpage = page.get_textpage()
+        text_part = textpage.get_text_bounded(
+            bottom=header_footer_size, top=height - header_footer_size
+        )
+        text.append(text_part)
+
+    return text
+
+
+def format_meeting_date_str(meeting_date, meeting_month, meeting_year):
+    meeting_date = meeting_date.split("-")[-1]
+    meeting_month = meeting_month.split("/")[-1]
+    meeting_date_str = " ".join([meeting_date, meeting_month, meeting_year])
+    meeting_date_str = re.sub(r"( \()(.*?)(\))", "", meeting_date_str)
+    meeting_date_str = meeting_date_str.replace("*", "")
+    return meeting_date_str
