@@ -16,7 +16,7 @@ class FedScraperPipeline:
         text_list = item["text"]
         clean_text = []
         for text_part in text_list:
-            clean_text_part = re.sub(r"[\n\r\t]", "", text_part).strip()
+            clean_text_part = re.sub(r"[\n\r\t]", " ", text_part).strip()
             if text_part != "":
                 clean_text.append(clean_text_part)
         clean_text = " ".join(clean_text).strip()

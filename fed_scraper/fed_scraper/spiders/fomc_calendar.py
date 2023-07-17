@@ -76,13 +76,13 @@ class FomcCalendarSpider(scrapy.Spider):
                             cb_kwargs={"implementation_note": implementation_note},
                         )
 
-                press_conference_panel = meeting_panel.css(".col-lg-3")
+                press_conference_panel = meeting_panel.css(".col-md-4:nth-child(4)")
                 for anchor in press_conference_panel.css("a"):
                     if bool(
                         re.search(
-                            r"(PRESS)(.*?)(CONFERENCE)",
+                            r"(PRESS CONFERENCE)",
                             anchor.css("::text").get(),
-                            flags=re.I | re.S,
+                            flags=re.I,
                         )
                     ):
                         press_conference = FedScraperItem(
@@ -110,14 +110,15 @@ class FomcCalendarSpider(scrapy.Spider):
         yield statement
 
     def parse_press_conference(self, response, press_conference):
-        press_conference["release_date"] = re.search(
-            r"([A-Za-z]+ \d{1,2}, \d{4})", response.css("title::text").get()
-        ).group()
+        press_conference["release_date"] = press_conference["meeting_date"]
 
-        for anchor in response.css("div div p a"):
-            if (
-                "PRESS CONFERENCE TRANSCRIPT (PDF)"
-                in anchor.css("::text").get().upper()
+        for anchor in response.css(".panel-padded a"):
+            if bool(
+                re.search(
+                    r"(PRESS CONFERENCE TRANSCRIPT)",
+                    anchor.css("::text").get(),
+                    flags=re.I,
+                )
             ):
                 press_conference["url"] = anchor.css("::attr(href)").get()
                 break
