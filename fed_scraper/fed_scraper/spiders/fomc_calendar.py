@@ -1,10 +1,5 @@
 import scrapy
-from fed_scraper.items import (
-    MeetingMinutes,
-    ImplementationNote,
-    Statement,
-    PressConference,
-)
+from fed_scraper.items import FedScraperItem
 import re
 import pypdfium2 as pdfium
 import io
@@ -31,7 +26,10 @@ class FomcCalendarSpider(scrapy.Spider):
 
                 minutes_panel = meeting_panel.css(".fomc-meeting__minutes")
                 if "HTML" in minutes_panel.css("a::text").getall():
-                    minutes = MeetingMinutes(meeting_date=meeting_date_str)
+                    minutes = FedScraperItem(
+                        document_kind="meeting_minutes",
+                        meeting_date=meeting_date_str,
+                    )
 
                     minutes["url"] = minutes_panel.css("a::attr(href)").getall()[
                         minutes_panel.css("a::text").getall().index("HTML")
@@ -51,7 +49,10 @@ class FomcCalendarSpider(scrapy.Spider):
                 statement_panel = meeting_panel.css(".col-lg-2")
                 for anchor in statement_panel.css("a"):
                     if anchor.css("::text").get() == "HTML":
-                        statement = Statement(meeting_date=meeting_date_str)
+                        statement = FedScraperItem(
+                            document_kind="statement",
+                            meeting_date=meeting_date_str,
+                        )
 
                         statement["url"] = anchor.css("::attr(href)").get()
 
@@ -62,8 +63,9 @@ class FomcCalendarSpider(scrapy.Spider):
                         )
 
                     if anchor.css("::text").get() == "Implementation Note":
-                        implementation_note = ImplementationNote(
-                            meeting_date=meeting_date_str
+                        implementation_note = FedScraperItem(
+                            document_kind="implementation_note",
+                            meeting_date=meeting_date_str,
                         )
 
                         implementation_note["url"] = anchor.css("::attr(href)").get()
@@ -76,11 +78,16 @@ class FomcCalendarSpider(scrapy.Spider):
 
                 press_conference_panel = meeting_panel.css(".col-lg-3")
                 for anchor in press_conference_panel.css("a"):
-                    if (
-                        anchor.css("::text").get() == "Press Conference"
-                    ):  # TODO: This misses March 2020 press conferences
-                        press_conference = PressConference(
-                            meeting_date=meeting_date_str
+                    if bool(
+                        re.search(
+                            r"(PRESS)(.*?)(CONFERENCE)",
+                            anchor.css("::text").get(),
+                            flags=re.I | re.S,
+                        )
+                    ):
+                        press_conference = FedScraperItem(
+                            document_kind="press_conference",
+                            meeting_date=meeting_date_str,
                         )
 
                         press_conference_page_url = anchor.css("::attr(href)").get()
@@ -122,7 +129,7 @@ class FomcCalendarSpider(scrapy.Spider):
         yield press_conference
 
     def parse_implementation_note(self, response, implementation_note):
-        implementation_note[release_date] = (
+        implementation_note["release_date"] = (
             response.css(".article__time::text").get().strip()
         )
 

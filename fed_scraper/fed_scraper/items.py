@@ -6,8 +6,21 @@
 import scrapy
 from datetime import datetime
 
+DOCUMENT_KINDS = {
+    "meeting_minutes",
+    "statement",
+    "press_conference",
+    "implementation_note",
+}
 
-def serialize_date(date_string):
+
+def check_document_kind(kind: str):
+    if kind in DOCUMENT_KINDS:
+        return kind
+    raise ValueError(f"INVALID DOCUMENT KIND: {kind}")
+
+
+def serialize_date(date_string: str):
     formats = [
         "%B %d, %Y",  # February 02, 2023
         "%d %B %Y",  # 02 February 2023
@@ -24,7 +37,7 @@ def serialize_date(date_string):
     return None
 
 
-def serialize_url(relative_url):
+def serialize_url(relative_url: str):
     absolute_url = "https://www.federalreserve.gov" + relative_url
     return absolute_url
 
@@ -32,25 +45,8 @@ def serialize_url(relative_url):
 class FedScraperItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
+    document_kind = scrapy.Field(serializer=check_document_kind)
     release_date = scrapy.Field(serializer=serialize_date)
     meeting_date = scrapy.Field(serializer=serialize_date)
-
-
-class MeetingDocument(FedScraperItem):
     url = scrapy.Field(serializer=serialize_url)
-
-
-class Statement(MeetingDocument):
-    text = scrapy.Field()
-
-
-class ImplementationNote(MeetingDocument):
-    text = scrapy.Field()
-
-
-class PressConference(MeetingDocument):
-    text = scrapy.Field()
-
-
-class MeetingMinutes(MeetingDocument):
     text = scrapy.Field()

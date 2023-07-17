@@ -7,31 +7,33 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 from scrapy.exporters import CsvItemExporter
+from fed_scraper.items import DOCUMENT_KINDS
+import re
 
 
 class FedScraperPipeline:
     def process_item(self, item, spider):
+        text_list = item["text"]
+        clean_text = []
+        for text_part in text_list:
+            clean_text_part = re.sub(r"[\n\r\t]", "", text_part).strip()
+            if text_part != "":
+                clean_text.append(clean_text_part)
+        clean_text = " ".join(clean_text).strip()
+        clean_text = re.sub(r" +", " ", clean_text)
+        clean_text = re.sub(r" \.", ".", clean_text)
+        item["text"] = clean_text
         return item
 
 
 class MultiCsvItemPipeline:
-    save_items = [
-        "MeetingMinutes",
-        "Statement",
-        "PressConference",
-        "ImplementationNote",
-    ]
-
     def open_spider(self, spider):
         self.files = dict(
-            [
-                (name, open("../data/" + name + ".csv", "w+b"))
-                for name in self.save_items
-            ]
+            [(name, open("../data/" + name + ".csv", "ab")) for name in DOCUMENT_KINDS]
         )
 
         self.exporters = dict(
-            [(name, CsvItemExporter(self.files[name])) for name in self.save_items]
+            [(name, CsvItemExporter(self.files[name])) for name in DOCUMENT_KINDS]
         )
 
         [e.start_exporting() for e in self.exporters.values()]
@@ -41,7 +43,5 @@ class MultiCsvItemPipeline:
         [f.close() for f in self.files.values()]
 
     def process_item(self, item, spider):
-        item_name = type(item).__name__
-        if item_name in set(self.save_items):
-            self.exporters[item_name].export_item(item)
+        self.exporters[item["document_kind"]].export_item(item)
         return item
