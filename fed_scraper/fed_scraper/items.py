@@ -5,19 +5,19 @@
 
 import scrapy
 from datetime import datetime
-
-DOCUMENT_KINDS = {
-    "meeting_minutes",
-    "statement",
-    "press_conference",
-    "implementation_note",
-}
+import calendar
+import re
 
 
-def check_document_kind(kind: str):
-    if kind in DOCUMENT_KINDS:
-        return kind
-    raise ValueError(f"INVALID DOCUMENT KIND: {kind}")
+def serialize_document_kind(kind: str):
+    kind = re.sub(r"(\()(.*)", "", kind)
+    kind = re.sub(r"(a\.m)|(p\.m)", " ", kind)
+    kind = re.sub(r"\d", " ", kind)
+    kind = re.sub(r"[\._,-:]", " ", kind)
+    kind = kind.lower()
+    kind = kind.strip()
+    kind = re.sub(r"\s+", "_", kind)
+    return kind
 
 
 def serialize_date(date_string: str):
@@ -29,12 +29,18 @@ def serialize_date(date_string: str):
 
     for date_format in formats:
         try:
-            date_obj = datetime.strptime(date_string, date_format).date()
-            return date_obj
+            return datetime.strptime(date_string, date_format).date()
         except ValueError:
             pass
 
-    return None
+    for part in re.sub(r"\W", " ", date_string).split():
+        if part in calendar.month_name[1:] or part in calendar.month_abbr[1:]:
+            month = part
+        if bool(re.fullmatch(r"\d\d?", part)):
+            date = part
+        if bool(re.fullmatch(r"\d\d\d\d", part)):
+            year = part
+    return serialize_date(f"{date} {month} {year}")
 
 
 def serialize_url(relative_url: str):
@@ -45,7 +51,7 @@ def serialize_url(relative_url: str):
 class FedScraperItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    document_kind = scrapy.Field(serializer=check_document_kind)
+    document_kind = scrapy.Field(serializer=serialize_document_kind)
     release_date = scrapy.Field(serializer=serialize_date)
     meeting_date = scrapy.Field(serializer=serialize_date)
     url = scrapy.Field(serializer=serialize_url)

@@ -7,8 +7,10 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 from scrapy.exporters import CsvItemExporter
-from fed_scraper.items import DOCUMENT_KINDS
+from fed_scraper.items import FedScraperItem
 import re
+import os.path
+import pandas as pd
 
 
 class FedScraperPipeline:
@@ -27,21 +29,49 @@ class FedScraperPipeline:
 
 
 class MultiCsvItemPipeline:
+    data_directory = "../data/"
+    all_docs_file = "fomc_documents.csv"
+    file_path = data_directory + all_docs_file
+
     def open_spider(self, spider):
-        self.files = dict(
-            [(name, open("../data/" + name + ".csv", "ab")) for name in DOCUMENT_KINDS]
-        )
+        if os.path.isfile(self.file_path):
+            include_headers_line = False
+        else:
+            include_headers_line = True
 
-        self.exporters = dict(
-            [(name, CsvItemExporter(self.files[name])) for name in DOCUMENT_KINDS]
+        self.file = open(self.file_path, "ab")
+        self.exporter = CsvItemExporter(
+            file=self.file,
+            include_headers_line=include_headers_line,
+            fields_to_export=list(FedScraperItem.fields),
         )
-
-        [e.start_exporting() for e in self.exporters.values()]
+        self.exporter.start_exporting()
 
     def close_spider(self, spider):
-        [e.finish_exporting() for e in self.exporters.values()]
-        [f.close() for f in self.files.values()]
+        self.exporter.finish_exporting()
+        self.file.close()
+
+        self.delete_duplicates()
+        self.split_csv_by_doc_kind()
 
     def process_item(self, item, spider):
-        self.exporters[item["document_kind"]].export_item(item)
-        return item
+        self.exporter.export_item(item)
+
+    def delete_duplicates(self):
+        pass
+
+    def split_csv_by_doc_kind(self):
+        fomc_documents = pd.read_csv(self.file_path)
+        document_kinds = list(set(fomc_documents["document_kind"]))
+        for document_kind in document_kinds:
+            documents_df = fomc_documents[
+                fomc_documents["document_kind"] == document_kind
+            ].copy()
+            documents_df.drop("document_kind", axis=1, inplace=True)
+            documents_df.sort_values(
+                by="meeting_date", inplace=True, na_position="first"
+            )
+            documents_df.to_csv(
+                self.data_directory + "documents_by_kind/" + document_kind + ".csv",
+                index=False,
+            )

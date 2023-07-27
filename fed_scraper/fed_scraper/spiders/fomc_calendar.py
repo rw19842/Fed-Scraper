@@ -27,7 +27,7 @@ class FomcCalendarSpider(scrapy.Spider):
                 minutes_panel = meeting_panel.css(".fomc-meeting__minutes")
                 if "HTML" in minutes_panel.css("a::text").getall():
                     minutes = FedScraperItem(
-                        document_kind="meeting_minutes",
+                        document_kind="minutes",
                         meeting_date=meeting_date_str,
                     )
 
@@ -52,10 +52,8 @@ class FomcCalendarSpider(scrapy.Spider):
                         statement = FedScraperItem(
                             document_kind="statement",
                             meeting_date=meeting_date_str,
+                            url=anchor.css("::attr(href)").get(),
                         )
-
-                        statement["url"] = anchor.css("::attr(href)").get()
-
                         yield response.follow(
                             statement["url"],
                             callback=self.parse_statement,
@@ -66,10 +64,8 @@ class FomcCalendarSpider(scrapy.Spider):
                         implementation_note = FedScraperItem(
                             document_kind="implementation_note",
                             meeting_date=meeting_date_str,
+                            url=anchor.css("::attr(href)").get(),
                         )
-
-                        implementation_note["url"] = anchor.css("::attr(href)").get()
-
                         yield response.follow(
                             implementation_note["url"],
                             callback=self.parse_implementation_note,
@@ -80,7 +76,7 @@ class FomcCalendarSpider(scrapy.Spider):
                 for anchor in press_conference_panel.css("a"):
                     if bool(
                         re.search(
-                            r"(PRESS CONFERENCE)",
+                            r"PRESS CONFERENCE",
                             anchor.css("::text").get(),
                             flags=re.I,
                         )
@@ -100,18 +96,14 @@ class FomcCalendarSpider(scrapy.Spider):
 
     def parse_minutes(self, response, minutes):
         minutes["text"] = response.css("#article *::text").getall()
-
         yield minutes
 
     def parse_statement(self, response, statement):
         statement["release_date"] = response.css(".article__time::text").get().strip()
         statement["text"] = response.css(".col-md-8")[1:].css("*::text").getall()
-
         yield statement
 
     def parse_press_conference(self, response, press_conference):
-        press_conference["release_date"] = press_conference["meeting_date"]
-
         for anchor in response.css(".panel-padded a"):
             if bool(
                 re.search(
