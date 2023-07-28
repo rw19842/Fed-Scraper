@@ -33,34 +33,26 @@ class HistoricalMaterialsSpider(scrapy.Spider):
                 )
 
                 anchor_text = anchor.css("::text").get()
+                surrounding_text = " ".join(anchor.xpath("..").css("::text").getall())
+
                 if anchor_text.upper() in ["PDF", "HTML"]:
-                    surrounding_text = anchor.xpath("..").css("::text").get()
                     fed_scraper_item["document_kind"] = surrounding_text
-                    if bool(re.search(r"released", surrounding_text, re.I)):
-                        fed_scraper_item["release_date"] = re.search(
-                            r"released .*",
-                            surrounding_text,
-                            re.I,
-                        ).group()
                 else:
                     fed_scraper_item["document_kind"] = anchor_text
 
-                    surrounding_text = " ".join(
-                        anchor.xpath("..").css("::text").getall()
-                    )
-                    if bool(re.search(r"released", surrounding_text, re.I)):
-                        fed_scraper_item["release_date"] = re.search(
-                            r"released .*",
-                            surrounding_text,
-                            re.I,
-                        ).group()
+                if "RELEASED" in surrounding_text.upper():
+                    fed_scraper_item["release_date"] = re.search(
+                        r"\(released .*\)",
+                        surrounding_text,
+                        re.I,
+                    ).group()
 
                 if ".pdf" in fed_scraper_item["url"]:
                     fed_scraper_item["text"] = parse_pdf_from_url(
                         serialize_url(fed_scraper_item["url"])
                     )
                     yield fed_scraper_item
-                else:
+                elif ".htm" in fed_scraper_item["url"]:
                     yield response.follow(
                         fed_scraper_item["url"],
                         callback=self.parse_html_document_page,

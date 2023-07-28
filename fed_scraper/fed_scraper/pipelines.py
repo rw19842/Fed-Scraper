@@ -52,7 +52,8 @@ class MultiCsvItemPipeline:
         self.file.close()
 
         self.delete_duplicates()
-        self.split_csv_by_doc_kind()
+        self.fill_release_dates()
+        self.split_csv_by_doc_type()
 
     def process_item(self, item, spider):
         self.exporter.export_item(item)
@@ -60,18 +61,75 @@ class MultiCsvItemPipeline:
     def delete_duplicates(self):
         pass
 
-    def split_csv_by_doc_kind(self):
-        fomc_documents = pd.read_csv(self.file_path)
-        document_kinds = list(set(fomc_documents["document_kind"]))
-        for document_kind in document_kinds:
-            documents_df = fomc_documents[
-                fomc_documents["document_kind"] == document_kind
+    def fill_release_dates(self):
+        pass
+
+    def split_csv_by_doc_type(self):
+        files = [
+            {
+                "name": "meeting_transcripts.csv",
+                "document_kinds": ["transcript"],
+            },
+            {
+                "name": "meeting_minutes.csv",
+                "document_kinds": [
+                    "minutes",
+                    "minutes_of_actions",
+                    "record_of_policy_actions",
+                    "memoranda_of_discussion",
+                    "historical_minutes",
+                ],
+            },
+            {
+                "name": "press_conference_transcript.csv",
+                "document_kinds": ["press_conference"],
+            },
+            {
+                "name": "policy_statements.csv",
+                "document_kinds": ["statement", "implementation_note"],
+            },
+            {"name": "agendas.csv", "document_kinds": ["agendas"]},
+            {
+                "name": "greenbooks.csv",
+                "document_kinds": [
+                    "greenbook",
+                    "part_1",
+                    "part_2",
+                    "supplement",
+                    "tealbook_a",
+                ],
+            },
+            {
+                "name": "bluebooks.csv",
+                "document_kinds": ["bluebook", "tealbook_b"],
+            },
+            {
+                "name": "redbooks.csv",
+                "document_kinds": ["redbook", "beige_book"],
+            },
+        ]
+
+        all_fomc_documents = pd.read_csv(self.file_path)
+
+        non_misc_document_kinds = []
+        for file in files:
+            non_misc_document_kinds += file["document_kinds"]
+        misc_document_kinds = [
+            document_kind
+            for document_kind in set(all_fomc_documents["document_kind"])
+            if document_kind not in non_misc_document_kinds
+        ]
+        files.append(
+            {"name": "miscellaneous.csv", "document_kinds": misc_document_kinds}
+        )
+
+        for file in files:
+            df = all_fomc_documents[
+                all_fomc_documents["document_kind"].isin(file["document_kinds"])
             ].copy()
-            documents_df.drop("document_kind", axis=1, inplace=True)
-            documents_df.sort_values(
-                by="meeting_date", inplace=True, na_position="first"
-            )
-            documents_df.to_csv(
-                self.data_directory + "documents_by_kind/" + document_kind + ".csv",
+
+            df.sort_values(by="meeting_date", inplace=True, na_position="first")
+            df.to_csv(
+                self.data_directory + "documents_by_type/" + file["name"],
                 index=False,
             )

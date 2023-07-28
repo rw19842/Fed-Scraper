@@ -22,7 +22,6 @@ def serialize_document_kind(kind: str):
 
 def serialize_date(date_string: str):
     formats = [
-        "%B %d, %Y",  # February 02, 2023
         "%d %B %Y",  # 02 February 2023
         "%d %b %Y",  # 02 Feb 2023
     ]

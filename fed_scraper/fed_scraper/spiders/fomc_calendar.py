@@ -14,15 +14,13 @@ class FomcCalendarSpider(scrapy.Spider):
     def parse(self, response):
         year_panels = response.css(".panel-default")
         for year_panel in year_panels:
-            meeting_year = year_panel.css("div div *::text").get()[:4]
+            meeting_year = year_panel.css(".panel-heading *::text").get()
 
             meeting_panels = year_panel.css(".fomc-meeting")
             for meeting_panel in meeting_panels:
                 meeting_month = meeting_panel.css(".fomc-meeting__month *::text").get()
                 meeting_date = meeting_panel.css(".fomc-meeting__date *::text").get()
-                meeting_date_str = format_meeting_date_str(
-                    meeting_date, meeting_month, meeting_year
-                )
+                meeting_date_str = " ".join([meeting_month, meeting_date, meeting_year])
 
                 minutes_panel = meeting_panel.css(".fomc-meeting__minutes")
                 if "HTML" in minutes_panel.css("a::text").getall():
@@ -147,12 +145,3 @@ def parse_pdf_from_url(url, header_footer_size=65):
         text.append(text_part)
 
     return text
-
-
-def format_meeting_date_str(meeting_date, meeting_month, meeting_year):
-    meeting_date = meeting_date.split("-")[-1]
-    meeting_month = meeting_month.split("/")[-1]
-    meeting_date_str = " ".join([meeting_date, meeting_month, meeting_year])
-    meeting_date_str = re.sub(r"( \()(.*?)(\))", "", meeting_date_str)
-    meeting_date_str = meeting_date_str.replace("*", "")
-    return meeting_date_str
