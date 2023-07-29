@@ -88,14 +88,14 @@ class MultiCsvItemPipeline:
                 "name": "policy_statements.csv",
                 "document_kinds": ["statement", "implementation_note"],
             },
-            {"name": "agendas.csv", "document_kinds": ["agendas"]},
+            {"name": "agendas.csv", "document_kinds": ["agenda"]},
             {
                 "name": "greenbooks.csv",
                 "document_kinds": [
                     "greenbook",
-                    "part_1",
-                    "part_2",
-                    "supplement",
+                    "greenbook_part_one",
+                    "greenbook_part_two",
+                    "greenbook_supplement",
                     "tealbook_a",
                 ],
             },

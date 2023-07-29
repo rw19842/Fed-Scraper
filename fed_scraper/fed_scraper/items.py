@@ -10,10 +10,10 @@ import re
 
 
 def serialize_document_kind(kind: str):
-    kind = re.sub(r"(\()(.*)", "", kind)
-    kind = re.sub(r"(a\.m)|(p\.m)", " ", kind)
+    kind = re.sub(r"\(.*\)", "", kind)
+    kind = re.sub(r"(a\.m)|(p\.m)|(PDF)|(HTML)|(MB)|(KB)", " ", kind)
     kind = re.sub(r"\d", " ", kind)
-    kind = re.sub(r"[\._,-:]", " ", kind)
+    kind = re.sub(r"[\._,-:\|]", " ", kind)
     kind = kind.lower()
     kind = kind.strip()
     kind = re.sub(r"\s+", "_", kind)

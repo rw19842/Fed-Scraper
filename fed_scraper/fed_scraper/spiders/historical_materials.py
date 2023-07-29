@@ -35,8 +35,23 @@ class HistoricalMaterialsSpider(scrapy.Spider):
                 anchor_text = anchor.css("::text").get()
                 surrounding_text = " ".join(anchor.xpath("..").css("::text").getall())
 
-                if anchor_text.upper() in ["PDF", "HTML"]:
+                if bool(
+                    re.fullmatch(
+                        r"((\d*\.?\d*) ((MB)|(KB)) (PDF))|(PDF)|(HTML)", anchor_text
+                    )
+                ):
                     fed_scraper_item["document_kind"] = surrounding_text
+                elif "GREENBOOK" in surrounding_text.upper():
+                    if "PART 1" in anchor_text.upper():
+                        fed_scraper_item["document_kind"] = "greenbook_part_one"
+                    elif "PART 2" in anchor_text.upper():
+                        fed_scraper_item["document_kind"] = "greenbook_part_two"
+                    else:
+                        fed_scraper_item["document_kind"] = anchor_text
+                elif "SUPPLEMENT" in anchor_text.upper():
+                    fed_scraper_item["document_kind"] = "greenbook_supplement"
+                elif "BEIGE" in surrounding_text.upper():
+                    fed_scraper_item["document_kind"] = "beige_book"
                 else:
                     fed_scraper_item["document_kind"] = anchor_text
 
