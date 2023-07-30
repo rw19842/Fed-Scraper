@@ -37,7 +37,8 @@ class HistoricalMaterialsSpider(scrapy.Spider):
 
                 if bool(
                     re.fullmatch(
-                        r"((\d*\.?\d*) ((MB)|(KB)) (PDF))|(PDF)|(HTML)", anchor_text
+                        r"((\d*\.?\d*) ((MB)|(KB)) (PDF))|(PDF)|(HTML)",
+                        re.sub(r"\(.*\)", "", anchor_text),
                     )
                 ):
                     fed_scraper_item["document_kind"] = surrounding_text
@@ -46,12 +47,22 @@ class HistoricalMaterialsSpider(scrapy.Spider):
                         fed_scraper_item["document_kind"] = "greenbook_part_one"
                     elif "PART 2" in anchor_text.upper():
                         fed_scraper_item["document_kind"] = "greenbook_part_two"
+                    elif "SUPPLEMENT" in anchor_text.upper():
+                        fed_scraper_item["document_kind"] = "greenbook_supplement"
                     else:
                         fed_scraper_item["document_kind"] = anchor_text
                 elif "SUPPLEMENT" in anchor_text.upper():
                     fed_scraper_item["document_kind"] = "greenbook_supplement"
                 elif "BEIGE" in surrounding_text.upper():
                     fed_scraper_item["document_kind"] = "beige_book"
+                elif (
+                    "INTERMEETING EXECUTIVE COMMITTEE MINUTES"
+                    in surrounding_text.upper()
+                ):
+                    fed_scraper_item[
+                        "document_kind"
+                    ] = "intermeeting_executive_committee_minutes"
+                    fed_scraper_item["meeting_date"] = anchor_text
                 else:
                     fed_scraper_item["document_kind"] = anchor_text
 

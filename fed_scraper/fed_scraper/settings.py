@@ -63,8 +63,11 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    "fed_scraper.pipelines.FedScraperPipeline": 100,
-    "fed_scraper.pipelines.MultiCsvItemPipeline": 1000,
+    "fed_scraper.pipelines.TextPipeline": 100,
+    "fed_scraper.pipelines.CsvPipeline": 200,
+    "fed_scraper.pipelines.DuplicatesPipeline": 300,
+    "fed_scraper.pipelines.ReleaseDatesPipeline": 400,
+    "fed_scraper.pipelines.SplitCsvPipeline": 500,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

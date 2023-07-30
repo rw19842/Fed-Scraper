@@ -13,7 +13,7 @@ import os.path
 import pandas as pd
 
 
-class FedScraperPipeline:
+class TextPipeline:
     def process_item(self, item, spider):
         text_list = item["text"]
         clean_text = []
@@ -28,7 +28,7 @@ class FedScraperPipeline:
         return item
 
 
-class MultiCsvItemPipeline:
+class CsvPipeline:
     data_directory = "../data/"
     all_docs_file = "fomc_documents.csv"
     file_path = data_directory + all_docs_file
@@ -51,20 +51,34 @@ class MultiCsvItemPipeline:
         self.exporter.finish_exporting()
         self.file.close()
 
-        self.delete_duplicates()
-        self.fill_release_dates()
-        self.split_csv_by_doc_type()
-
     def process_item(self, item, spider):
         self.exporter.export_item(item)
+        return item
 
-    def delete_duplicates(self):
+
+class PostExportPipeline(CsvPipeline):
+    def open_spider(self, spider):
         pass
 
-    def fill_release_dates(self):
+    def process_item(self, item, spider):
+        return item
+
+    def close_spider(self, spider):
         pass
 
-    def split_csv_by_doc_type(self):
+
+class DuplicatesPipeline(PostExportPipeline):
+    def close_spider(self, spider):
+        pass
+
+
+class ReleaseDatesPipeline(PostExportPipeline):
+    def close_spider(self, spider):
+        pass
+
+
+class SplitCsvPipeline(PostExportPipeline):
+    def close_spider(self, spider):
         files = [
             {
                 "name": "meeting_transcripts.csv",
@@ -78,6 +92,7 @@ class MultiCsvItemPipeline:
                     "record_of_policy_actions",
                     "memoranda_of_discussion",
                     "historical_minutes",
+                    "intermeeting_executive_committee_minutes",
                 ],
             },
             {

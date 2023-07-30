@@ -32,6 +32,7 @@ def serialize_date(date_string: str):
         except ValueError:
             pass
 
+    date_string = re.sub(r"\(.*\)", "", date_string)
     for part in re.sub(r"\W", " ", date_string).split():
         if part in calendar.month_name[1:] or part in calendar.month_abbr[1:]:
             month = part
