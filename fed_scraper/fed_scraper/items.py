@@ -20,7 +20,10 @@ def serialize_document_kind(kind: str):
     return kind
 
 
-def serialize_date(date_string: str):
+def serialize_date(date_string):
+    if "datetime.date" in str(type(date_string)):
+        return date_string
+
     formats = [
         "%d %B %Y",  # 02 February 2023
         "%d %b %Y",  # 02 Feb 2023

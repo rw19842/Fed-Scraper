@@ -7,10 +7,11 @@
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 from scrapy.exporters import CsvItemExporter
-from fed_scraper.items import FedScraperItem
+from fed_scraper.items import FedScraperItem, serialize_date, serialize_document_kind
 import re
 import os.path
 import pandas as pd
+from datetime import datetime, timedelta
 
 
 class TextPipeline:
@@ -25,6 +26,61 @@ class TextPipeline:
         clean_text = re.sub(r" +", " ", clean_text)
         clean_text = re.sub(r" \.", ".", clean_text)
         item["text"] = clean_text
+        return item
+
+
+class ReleaseDatesPipeline:
+    def process_item(self, item, spider):
+        if item.get("release_date") is not None:
+            return item
+
+        document_kind = serialize_document_kind(item["document_kind"])
+        meeting_date = serialize_date(item["meeting_date"])
+        subsequent_meeting_date = meeting_date + timedelta(weeks=6)
+        annual_report_date = datetime(meeting_date.year, 4, 1)
+
+        if document_kind == "minutes":
+            if meeting_date >= datetime(2004, 12, 1):
+                item["release_date"] = meeting_date + timedelta(weeks=3)
+            elif meeting_date >= datetime(1993, 2, 1):
+                item["release_date"] = subsequent_meeting_date + timedelta(days=3)
+
+        elif document_kind in ["record_of_policy_actions", "minutes_of_actions"]:
+            if meeting_date >= datetime(1976, 1, 1):
+                item["release_date"] = meeting_date + timedelta(days=30)
+            elif meeting_date >= datetime(1975, 1, 1):
+                item["release_date"] = meeting_date + timedelta(days=45)
+            elif meeting_date >= datetime(1967, 1, 1):
+                item["release_date"] = meeting_date + timedelta(days=90)
+            else:
+                item["release_date"] = annual_report_date
+
+        elif document_kind in [
+            "historical_minutes",
+            "intermeeting_executive_committee_minutes",
+        ]:
+            item["release_date"] = max(
+                datetime(1964, 1, 1).date(), meeting_date + timedelta(days=5 * 365.25)
+            )
+
+        elif document_kind == "memoranda_of_discussion":
+            item["release_date"] = meeting_date + timedelta(days=5 * 365.25)
+
+        elif document_kind == "transcript":
+            item["release_date"] = max(
+                datetime(1993, 11, 1).date(), meeting_date + timedelta(days=5 * 365.25)
+            )
+
+        elif document_kind in [
+            "press_conference",
+            "statement",
+            "implementation_note",
+        ]:
+            item["release_date"] = meeting_date
+
+        else:
+            item["release_date"] = meeting_date + timedelta(days=5 * 365.25)
+
         return item
 
 
@@ -72,9 +128,18 @@ class DuplicatesPipeline(PostExportPipeline):
         pass
 
 
-class ReleaseDatesPipeline(PostExportPipeline):
+class SortByMeetingDatePipeline(PostExportPipeline):
     def close_spider(self, spider):
-        pass
+        all_fomc_documents = pd.read_csv(self.file_path)
+        all_fomc_documents.sort_values(
+            by="meeting_date",
+            inplace=True,
+            na_position="first",
+        )
+        all_fomc_documents.to_csv(
+            self.file_path,
+            index=False,
+        )
 
 
 class SplitCsvPipeline(PostExportPipeline):
