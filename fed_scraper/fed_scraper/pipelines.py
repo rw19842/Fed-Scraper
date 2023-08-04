@@ -148,7 +148,7 @@ class SortByMeetingDatePipeline(PostExportPipeline):
 class SplitCsvPipeline(PostExportPipeline):
     def close_spider(self, spider):
         if not os.path.isdir(self.data_directory + "documents_by_type/"):
-            mkdir(self.data_directory)
+            mkdir(self.data_directory + "documents_by_type/")
 
         files = [
             {
