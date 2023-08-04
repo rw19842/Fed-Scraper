@@ -10,6 +10,7 @@ from scrapy.exporters import CsvItemExporter
 from fed_scraper.items import FedScraperItem, serialize_date, serialize_document_kind
 import re
 import os.path
+from os import mkdir
 import pandas as pd
 from datetime import datetime, timedelta
 
@@ -94,6 +95,8 @@ class CsvPipeline:
             include_headers_line = False
         else:
             include_headers_line = True
+            if not os.path.isdir(self.data_directory):
+                mkdir(self.data_directory)
 
         self.file = open(self.file_path, "ab")
         self.exporter = CsvItemExporter(
@@ -144,6 +147,9 @@ class SortByMeetingDatePipeline(PostExportPipeline):
 
 class SplitCsvPipeline(PostExportPipeline):
     def close_spider(self, spider):
+        if not os.path.isdir(self.data_directory + "documents_by_type/"):
+            mkdir(self.data_directory)
+
         files = [
             {
                 "name": "meeting_transcripts.csv",
