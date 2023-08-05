@@ -12,6 +12,13 @@ BOT_NAME = "fed_scraper"
 SPIDER_MODULES = ["fed_scraper.spiders"]
 NEWSPIDER_MODULE = "fed_scraper.spiders"
 
+# Configure logging
+LOG_ENABLED = True
+LOG_FILE = "../scrapy.log"
+LOG_FILE_APPEND = True
+LOG_LEVEL = "ERROR"
+LOG_SHORT_NAME = True
+
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = "fed_scraper (+http://www.yourdomain.com)"

@@ -68,7 +68,7 @@ class HistoricalMaterialsSpider(scrapy.Spider):
 
                 if "RELEASED" in surrounding_text.upper():
                     fed_scraper_item["release_date"] = re.search(
-                        r"\(released .*\)",
+                        r"(?<=\()(Released.*?)(?=\))",
                         surrounding_text,
                         re.I,
                     ).group()
@@ -87,4 +87,6 @@ class HistoricalMaterialsSpider(scrapy.Spider):
 
     def parse_html_document_page(self, response, fed_scraper_item):
         fed_scraper_item["text"] = response.css("#article *::text").getall()
+        if fed_scraper_item["text"] == []:
+            fed_scraper_item["text"] = response.css("p *::text").getall()
         yield fed_scraper_item

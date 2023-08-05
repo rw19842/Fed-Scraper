@@ -21,7 +21,7 @@ def serialize_document_kind(kind: str):
 
 
 def serialize_date(date_string):
-    if "datetime.date" in str(type(date_string)):
+    if "'datetime.date'" in str(type(date_string)):
         return date_string
 
     formats = [
@@ -36,6 +36,7 @@ def serialize_date(date_string):
             pass
 
     date_string = re.sub(r"\(.*\)", "", date_string)
+    date_string = re.sub(r"\d\d?:\d\d", "", date_string)
     for part in re.sub(r"\W", " ", date_string).split():
         if part in calendar.month_name[1:] or part in calendar.month_abbr[1:]:
             month = part

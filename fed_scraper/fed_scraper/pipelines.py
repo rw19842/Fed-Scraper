@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 
 class TextPipeline:
     def process_item(self, item, spider):
-        text_list = item["text"]
+        text_list = item.get("text")
         clean_text = []
         for text_part in text_list:
             clean_text_part = re.sub(r"[\n\r\t]", " ", text_part).strip()
@@ -38,20 +38,20 @@ class ReleaseDatesPipeline:
         document_kind = serialize_document_kind(item["document_kind"])
         meeting_date = serialize_date(item["meeting_date"])
         subsequent_meeting_date = meeting_date + timedelta(weeks=6)
-        annual_report_date = datetime(meeting_date.year, 4, 1)
+        annual_report_date = datetime(meeting_date.year, 4, 1).date()
 
         if document_kind == "minutes":
-            if meeting_date >= datetime(2004, 12, 1):
+            if meeting_date >= datetime(2004, 12, 1).date():
                 item["release_date"] = meeting_date + timedelta(weeks=3)
-            elif meeting_date >= datetime(1993, 2, 1):
+            elif meeting_date >= datetime(1993, 2, 1).date():
                 item["release_date"] = subsequent_meeting_date + timedelta(days=3)
 
         elif document_kind in ["record_of_policy_actions", "minutes_of_actions"]:
-            if meeting_date >= datetime(1976, 1, 1):
+            if meeting_date >= datetime(1976, 1, 1).date():
                 item["release_date"] = meeting_date + timedelta(days=30)
-            elif meeting_date >= datetime(1975, 1, 1):
+            elif meeting_date >= datetime(1975, 1, 1).date():
                 item["release_date"] = meeting_date + timedelta(days=45)
-            elif meeting_date >= datetime(1967, 1, 1):
+            elif meeting_date >= datetime(1967, 1, 1).date():
                 item["release_date"] = meeting_date + timedelta(days=90)
             else:
                 item["release_date"] = annual_report_date
