@@ -15,8 +15,8 @@ NEWSPIDER_MODULE = "fed_scraper.spiders"
 # Configure logging
 LOG_ENABLED = True
 LOG_FILE = "../scrapy.log"
-LOG_FILE_APPEND = True
-LOG_LEVEL = "ERROR"
+LOG_FILE_APPEND = False
+LOG_LEVEL = "INFO"
 LOG_SHORT_NAME = True
 
 
