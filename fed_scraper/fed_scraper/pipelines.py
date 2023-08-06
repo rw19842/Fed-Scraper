@@ -10,7 +10,7 @@ from scrapy.exporters import CsvItemExporter
 from fed_scraper.items import FedScraperItem, serialize_date, serialize_document_kind
 import re
 import os.path
-from os import mkdir
+from os import mkdir, listdir
 import pandas as pd
 from datetime import datetime, timedelta
 
@@ -219,3 +219,72 @@ class SplitCsvPipeline(PostExportPipeline):
                 self.data_directory + "documents_by_type/" + file["name"],
                 index=False,
             )
+
+
+class CreateMarkdownFileDescriptions(PostExportPipeline):
+    markdown_dir = "../csv_descriptions/"
+
+    def csv_file_stats(self, file_path):
+        stats = {
+            "Document Kind": [],
+            "Count": [],
+            "Earliest": [],
+            "Latest": [],
+        }
+
+        documents_df = pd.read_csv(file_path)
+        for document_kind in set(documents_df["document_kind"]):
+            df = documents_df[documents_df["document_kind"] == document_kind]
+
+            stats["Document Kind"].append(document_kind)
+            stats["Count"].append(len(df))
+            stats["Earliest"].append(df["meeting_date"].min())
+            stats["Latest"].append(df["meeting_date"].max())
+
+        stats_df = pd.DataFrame(stats).sort_values(by="Count", ascending=False)
+
+        return stats_df, documents_df
+
+    def stats_df_to_md(self, stats_df, filename):
+        stats_df.to_markdown(
+            self.markdown_dir + re.sub(r".csv", "", filename) + ".md",
+            index=False,
+        )
+
+    def close_spider(self, spider):
+        if not os.path.isdir(self.markdown_dir):
+            mkdir(self.markdown_dir)
+
+        csv_overview = {
+            "File": [],
+            "Count": [],
+            "Earliest": [],
+            "Latest": [],
+        }
+
+        stats_df, documents_df = self.csv_file_stats(self.file_path)
+        self.stats_df_to_md(stats_df, self.all_docs_file)
+        csv_overview["File"].append(
+            f"[**`{self.all_docs_file}`**]({re.sub('.csv', '.md', self.all_docs_file)})"
+        )
+        csv_overview["Count"].append(len(documents_df))
+        csv_overview["Earliest"].append(documents_df["meeting_date"].min())
+        csv_overview["Latest"].append(documents_df["meeting_date"].max())
+
+        for filename in listdir(self.data_directory + "documents_by_type/"):
+            stats_df, documents_df = self.csv_file_stats(
+                self.data_directory + "documents_by_type/" + filename
+            )
+            self.stats_df_to_md(stats_df, filename)
+
+            csv_overview["File"].append(
+                f"[**`{filename}`**]({re.sub('.csv', '.md', filename)})"
+            )
+            csv_overview["Count"].append(len(documents_df))
+            csv_overview["Earliest"].append(documents_df["meeting_date"].min())
+            csv_overview["Latest"].append(documents_df["meeting_date"].max())
+
+        self.stats_df_to_md(
+            pd.DataFrame(csv_overview).sort_values(by="Count", ascending=False),
+            "csv_overview",
+        )
