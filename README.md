@@ -34,4 +34,4 @@ The scrapy spiders save each document into a row of the csv file, [`data/fomc_do
 
 The documents are then grouped based on their `document_kind` and split up into different csv files found in the [`data/documents_by_type`](data/documents_by_type) directory.
 
-Details of the csv files can be found in [this table](csv_descriptions/csv_overview).
+Details of the csv files can be found in [this table](csv_descriptions/csv_overview.md).
