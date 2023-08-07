@@ -2,24 +2,24 @@
 |:-----------------------------------------------------------|--------:|:-----------|:-----------|
 | agenda                                                     |     580 | 1960-01-12 | 2017-12-13 |
 | record_of_policy_actions                                   |     578 | 1936-03-19 | 1992-12-22 |
-| minutes                                                    |     576 | 1993-02-03 | 2023-06-14 |
-| statement                                                  |     460 | 1994-02-04 | 2023-07-26 |
 | transcript                                                 |     453 | 1976-03-29 | 2017-12-13 |
 | greenbook_supplement                                       |     444 | 1964-06-17 | 2010-04-28 |
 | bluebook                                                   |     424 | 1965-11-02 | 2010-04-28 |
 | beige_book                                                 |     386 | 1983-07-13 | 2017-12-13 |
+| minutes                                                    |     354 | 1993-02-03 | 2023-06-14 |
 | presentation_materials                                     |     352 | 1976-03-29 | 2017-12-13 |
 | historical_minutes                                         |     335 | 1936-03-18 | 1967-05-23 |
-| implementation_note                                        |     321 | 2018-01-31 | 2023-07-26 |
-| press_conference                                           |     317 | 2011-04-27 | 2023-07-26 |
 | greenbook_part_one                                         |     307 | 1974-08-20 | 2010-04-28 |
 | greenbook_part_two                                         |     307 | 1974-08-20 | 2010-04-28 |
 | minutes_of_actions                                         |     283 | 1967-06-20 | 1992-12-22 |
 | intermeeting_executive_committee_minutes                   |     237 | 1936-03-19 | 1955-06-06 |
+| statement                                                  |     219 | 1994-02-04 | 2023-07-26 |
 | redbook                                                    |     143 | 1970-05-26 | 1983-05-24 |
 | greenbook                                                  |     141 | 1964-06-17 | 1979-10-06 |
 | memoranda_of_discussion                                    |     123 | 1967-06-20 | 1976-03-16 |
+| press_conference                                           |     107 | 2011-04-27 | 2023-07-26 |
 | accessible_version                                         |      95 | 2001-06-27 | 2011-12-13 |
+| implementation_note                                        |      92 | 2018-01-31 | 2023-07-26 |
 | tealbook_a                                                 |      53 | 2010-06-23 | 2017-12-13 |
 | tealbook_b                                                 |      53 | 2010-06-23 | 2017-12-13 |
 | memos                                                      |      43 | 1955-01-11 | 2017-02-01 |
@@ -28,5 +28,5 @@
 | accessible_material                                        |      17 | 2007-10-31 | 2011-11-02 |
 | statement_on_longer_run_goals_and_monetary_policy_strategy |       5 | 2013-01-30 | 2017-02-01 |
 | staff_statements                                           |       4 | 1980-12-19 | 1998-08-18 |
-| addendum_to_the_policy_normalization_principles_and_plans  |       1 | 2017-06-14 | 2017-06-14 |
 | policy_normalization_principles_and_plans                  |       1 | 2014-09-17 | 2014-09-17 |
+| addendum_to_the_policy_normalization_principles_and_plans  |       1 | 2017-06-14 | 2017-06-14 |

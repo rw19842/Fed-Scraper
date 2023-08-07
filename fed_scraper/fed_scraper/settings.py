@@ -76,7 +76,7 @@ ITEM_PIPELINES = {
     "fed_scraper.pipelines.DuplicatesPipeline": 300,
     "fed_scraper.pipelines.SortByMeetingDatePipeline": 350,
     "fed_scraper.pipelines.SplitCsvPipeline": 400,
-    "fed_scraper.pipelines.CreateMarkdownFileDescriptions": 500,
+    "fed_scraper.pipelines.CreateMarkdownFileDescriptions": 900,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

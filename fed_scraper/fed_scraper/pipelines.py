@@ -128,7 +128,18 @@ class PostExportPipeline(CsvPipeline):
 
 class DuplicatesPipeline(PostExportPipeline):
     def close_spider(self, spider):
-        pass
+        subset = list(FedScraperItem.fields)
+        subset.remove("text")
+
+        all_fomc_documents = pd.read_csv(self.file_path)
+        all_fomc_documents.drop_duplicates(subset=subset, inplace=True)
+
+        print(f"{len(all_fomc_documents)} documents in {self.all_docs_file}")
+
+        all_fomc_documents.to_csv(
+            self.file_path,
+            index=False,
+        )
 
 
 class SortByMeetingDatePipeline(PostExportPipeline):
@@ -139,6 +150,7 @@ class SortByMeetingDatePipeline(PostExportPipeline):
             inplace=True,
             na_position="first",
         )
+
         all_fomc_documents.to_csv(
             self.file_path,
             index=False,
