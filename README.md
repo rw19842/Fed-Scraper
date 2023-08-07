@@ -6,10 +6,10 @@ This web scraper, built using the [Scrapy](https://scrapy.org/) framework, colle
 
 This scrapy project consists of the following spiders:
 
-1. [`fomc_calendar.py`]([/Fed-Scraper/fed_scraper/fed_scraper/spiders/fomc_calendar.py](https://github.com/rw19842/Fed-Scraper/blob/main/fed_scraper/fed_scraper/spiders/fomc_calendar.py))
+1. [`fomc_calendar.py`](https://github.com/rw19842/Fed-Scraper/blob/main/fed_scraper/fed_scraper/spiders/fomc_calendar.py)
    - Scrapes text from recent documents starting at: <https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm>
    - Takes $\approx$ 20 seconds to complete crawl
-2. [`historical_materials.py`]([/fed_scraper/fed_scraper/spiders/historical_materials.py](https://github.com/rw19842/Fed-Scraper/blob/main/fed_scraper/fed_scraper/spiders/historical_materials.py))
+2. [`historical_materials.py`](https://github.com/rw19842/Fed-Scraper/blob/main/fed_scraper/fed_scraper/spiders/historical_materials.py)
    - Scrapes text from documents five or more years old starting at: <https://www.federalreserve.gov/monetarypolicy/fomc_historical_year.htm>
    - Takes $\approx$ 45 minutes to complete crawl
 
