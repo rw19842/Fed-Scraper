@@ -17,7 +17,7 @@ This scrapy project consists of the following spiders:
 
 The spiders can be run with the [scrapy command line tool](https://docs.scrapy.org/en/latest/topics/commands.html) by running the [scrapy crawl command](https://docs.scrapy.org/en/latest/topics/commands.html#crawl) from the [scrapy project directory](fed_scraper).
 
-Alternatively, the data will be made available on [kaggle](https://www.kaggle.com) at <**_KAGGLE LINK TO DATA_**>.
+Alternatively, the data will be made available on [kaggle](https://www.kaggle.com) at <https://www.kaggle.com/datasets/edwardbickerton/fomc-text-data>.
 
 ## Output
 
