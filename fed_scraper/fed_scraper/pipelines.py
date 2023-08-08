@@ -134,8 +134,6 @@ class DuplicatesPipeline(PostExportPipeline):
         all_fomc_documents = pd.read_csv(self.file_path)
         all_fomc_documents.drop_duplicates(subset=subset, inplace=True)
 
-        print(f"{len(all_fomc_documents)} documents in {self.all_docs_file}")
-
         all_fomc_documents.to_csv(
             self.file_path,
             index=False,
