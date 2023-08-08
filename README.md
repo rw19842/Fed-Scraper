@@ -26,7 +26,7 @@ The scrapy spiders save each document into a row of the csv file, [`data/fomc_do
 1. `document_kind`
    - A list of document kinds in the dataset can be found [here](csv_descriptions/fomc_documents.md).
 2. `meeting_date`
-   - The date of the documents associated FOMC meeting.
+   - The date of the FOMC meeting associated with the document.
 3. `release_date`
    - The release date of the document.
    - When this is not found on the [Federal Reserve website](https://www.federalreserve.gov/) by the spider, it is inferred according the release schedules described [here](https://www.federalreserve.gov/monetarypolicy/fomc_historical.htm) via the scrapy pipeline [`ReleaseDatesPipeline`](fed_scraper/fed_scraper/pipelines.py).
