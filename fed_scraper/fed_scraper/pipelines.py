@@ -29,9 +29,20 @@ class TextPipeline:
 
 
 class ReleaseDatesPipeline:
+    def __init__(self):
+        self.num_release_dates_filled = 0
+
+    def close_spider(self):
+        if self.num_release_dates_filled > 0:
+            logging.warning(
+                f"Inferred {self.num_release_dates_filled} missing release dates."
+            )
+
     def process_item(self, item, spider):
         if item.get("release_date") is not None:
             return item
+        else:
+            self.num_release_dates_filled += 1
 
         document_kind = serialize_document_kind(item["document_kind"])
         meeting_date = serialize_date(item["meeting_date"])
@@ -135,7 +146,7 @@ class RemoveMissingPipeline(PostExportPipeline):
 
             na_rows = all_fomc_documents[all_fomc_documents.isna().any(axis=1)]
             num_missing = len(na_rows)
-            logging.warning(f"{num_missing} documents with missing values!")
+            logging.warning(f"Removed {num_missing} documents with missing values:")
             for index, row in na_rows.iterrows():
                 logging.warning(
                     f"meeting_date: {row['meeting_date']}, "
