@@ -32,7 +32,7 @@ class ReleaseDatesPipeline:
     def __init__(self):
         self.num_release_dates_filled = 0
 
-    def close_spider(self):
+    def close_spider(self, spider):
         if self.num_release_dates_filled > 0:
             logging.warning(
                 f"Inferred {self.num_release_dates_filled} missing release dates."
