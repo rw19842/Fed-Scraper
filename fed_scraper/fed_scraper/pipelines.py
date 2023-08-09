@@ -175,9 +175,12 @@ class SortByMeetingDatePipeline(PostExportPipeline):
 
 
 class SplitCsvPipeline(PostExportPipeline):
+    def __init__(self):
+        self.sub_data_dir = self.data_directory + "documents_by_type/"
+
     def close_spider(self, spider):
-        if not os.path.isdir(self.data_directory + "documents_by_type/"):
-            mkdir(self.data_directory + "documents_by_type/")
+        if not os.path.isdir(self.sub_data_dir):
+            mkdir(self.sub_data_dir)
 
         files = [
             {
@@ -245,6 +248,6 @@ class SplitCsvPipeline(PostExportPipeline):
 
             df.sort_values(by="meeting_date", inplace=True, na_position="first")
             df.to_csv(
-                self.data_directory + "documents_by_type/" + file["name"],
+                self.sub_data_dir + file["name"],
                 index=False,
             )
