@@ -1,3 +1,3 @@
 | Document Kind    |   Count | Earliest   | Latest     |
 |:-----------------|--------:|:-----------|:-----------|
-| press_conference |     107 | 2011-04-27 | 2023-07-26 |
+| press_conference |     104 | 2013-03-20 | 2023-07-26 |
