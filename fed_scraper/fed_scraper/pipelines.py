@@ -104,11 +104,11 @@ class RemoveMissingPipeline:
         for field in self.check_missing:
             if field not in item:
                 self.num_missing += 1
-                raise DropItem(f"Item missing {field}: {item}")
+                raise DropItem(f"Item missing {field}")
 
         if bool(re.fullmatch(r"\s*", item.get("text"))):
             self.num_missing += 1
-            raise DropItem(f"Item text field is whitespace: {item}")
+            raise DropItem(f"Item text field is whitespace")
 
         return item
 
