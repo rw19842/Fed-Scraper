@@ -15,10 +15,10 @@ import logging
 
 class TextPipeline:
     def process_item(self, item, spider):
-        text_list = item.get("text")
         clean_text = []
-        for text_part in text_list:
-            clean_text_part = re.sub(r"[\n\r\t]", " ", text_part).strip()
+        for text_part in item.get("text"):
+            clean_text_part = re.sub(r"\x02", "", text_part)
+            clean_text_part = re.sub(r"[\n\r\t]", " ", text_part)
             if text_part != "":
                 clean_text.append(clean_text_part)
         clean_text = " ".join(clean_text).strip()
@@ -160,8 +160,7 @@ class DuplicatesPipeline(PostExportPipeline):
     def close_spider(self, spider):
         all_fomc_documents = pd.read_csv(self.file_path)
 
-        subset = "url"
-        duplicated = all_fomc_documents.duplicated(subset=subset)
+        duplicated = all_fomc_documents.duplicated(subset="url", keep="last")
 
         if duplicated.any():
             logging.warning(
@@ -174,7 +173,7 @@ class DuplicatesPipeline(PostExportPipeline):
                     f"url:{row['url']}, "
                 )
 
-            all_fomc_documents.drop_duplicates(subset=subset, inplace=True)
+            all_fomc_documents.drop_duplicates(subset="url", keep="last", inplace=True)
 
             all_fomc_documents.to_csv(
                 self.file_path,
