@@ -1,7 +1,7 @@
 import scrapy
-from fed_scraper.items import FedScraperItem, serialize_url
-from fed_scraper.spiders.fomc_calendar import parse_pdf_from_url
 import re
+from fed_scraper.items import FedScraperItem, serialize_url
+from fed_scraper.parse_pdf import parse_pdf_from_url
 
 
 class HistoricalMaterialsSpider(scrapy.Spider):

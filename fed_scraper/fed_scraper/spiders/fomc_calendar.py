@@ -1,9 +1,7 @@
 import scrapy
-from fed_scraper.items import FedScraperItem, serialize_url
 import re
-import pypdfium2 as pdfium
-import io
-import requests
+from fed_scraper.items import FedScraperItem, serialize_url
+from fed_scraper.parse_pdf import parse_pdf_from_url
 
 
 class FomcCalendarSpider(scrapy.Spider):
@@ -129,19 +127,3 @@ class FomcCalendarSpider(scrapy.Spider):
         ).getall()
 
         yield implementation_note
-
-
-def parse_pdf_from_url(url, header_footer_size=65):
-    response = requests.get(url, stream=True)
-    document = pdfium.PdfDocument(io.BytesIO(response.content))
-
-    text = []
-    for page in document:
-        height = page.get_size()[1]
-        textpage = page.get_textpage()
-        text_part = textpage.get_text_bounded(
-            bottom=header_footer_size, top=height - header_footer_size
-        )
-        text.append(text_part)
-
-    return text
