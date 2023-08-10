@@ -3,6 +3,7 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
+from scrapy.exceptions import DropItem
 from scrapy.exporters import CsvItemExporter
 from fed_scraper.items import FedScraperItem, serialize_date, serialize_document_kind
 import re
@@ -94,6 +95,30 @@ class ReleaseDatesPipeline:
         return item
 
 
+class RemoveMissingPipeline:
+    def __init__(self):
+        self.check_missing = ["document_kind", "meeting_date", "text", "url"]
+        self.num_missing = 0
+
+    def process_item(self, item, spider):
+        for field in self.check_missing:
+            if field not in item:
+                self.num_missing += 1
+                raise DropItem(f"Item missing {field}: {item}")
+
+        if bool(re.fullmatch(r"\s*", item.get("text"))):
+            self.num_missing += 1
+            raise DropItem(f"Item text field is whitespace: {item}")
+
+        return item
+
+    def close_spider(self, spider):
+        if self.num_missing > 0:
+            logging.warning(
+                f"Removed {self.num_missing} documents with missing values:"
+            )
+
+
 class CsvPipeline:
     data_directory = "../data/"
     all_docs_file = "fomc_documents.csv"
@@ -133,27 +158,6 @@ class PostExportPipeline(CsvPipeline):
 
     def close_spider(self, spider):
         pass
-
-
-class RemoveMissingPipeline(PostExportPipeline):
-    def close_spider(self, spider):
-        all_fomc_documents = pd.read_csv(self.file_path)
-        if all_fomc_documents.isna().any().any():
-            all_fomc_documents.dropna().to_csv(
-                self.file_path,
-                index=False,
-            )
-
-            na_rows = all_fomc_documents[all_fomc_documents.isna().any(axis=1)]
-            num_missing = len(na_rows)
-            logging.warning(f"Removed {num_missing} documents with missing values:")
-            for index, row in na_rows.iterrows():
-                logging.info(
-                    f"meeting_date: {row['meeting_date']}, "
-                    f"document_kind: {row['document_kind']}, "
-                    f"url:{row['url']}, "
-                    f"missing: {list(row.isna()[row.isna() == True].index)}"
-                )
 
 
 class DuplicatesPipeline(PostExportPipeline):
@@ -269,6 +273,7 @@ class SplitCsvPipeline(PostExportPipeline):
             ].copy()
 
             df.sort_values(by="meeting_date", inplace=True, na_position="first")
+            df.drop_duplicates(subset="url", keep="last", inplace=True)
             df.to_csv(
                 self.sub_data_dir + file["name"],
                 index=False,
