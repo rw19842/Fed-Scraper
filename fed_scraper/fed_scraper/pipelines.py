@@ -158,16 +158,28 @@ class RemoveMissingPipeline(PostExportPipeline):
 
 class DuplicatesPipeline(PostExportPipeline):
     def close_spider(self, spider):
-        subset = list(FedScraperItem.fields)
-        subset.remove("text")
-
         all_fomc_documents = pd.read_csv(self.file_path)
-        all_fomc_documents.drop_duplicates(subset=subset, inplace=True)
 
-        all_fomc_documents.to_csv(
-            self.file_path,
-            index=False,
-        )
+        subset = "url"
+        duplicated = all_fomc_documents.duplicated(subset=subset)
+
+        if duplicated.any():
+            logging.warning(
+                f"Removing {duplicated.sum()} duplicate document(s) found in {self.all_docs_file}:"
+            )
+            for index, row in all_fomc_documents[duplicated].iterrows():
+                logging.warning(
+                    f"meeting_date: {row['meeting_date']}, "
+                    f"document_kind: {row['document_kind']}, "
+                    f"url:{row['url']}, "
+                )
+
+            all_fomc_documents.drop_duplicates(subset=subset, inplace=True)
+
+            all_fomc_documents.to_csv(
+                self.file_path,
+                index=False,
+            )
 
 
 class SortByMeetingDatePipeline(PostExportPipeline):
