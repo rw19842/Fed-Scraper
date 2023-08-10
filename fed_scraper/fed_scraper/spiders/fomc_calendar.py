@@ -1,5 +1,5 @@
 import scrapy
-from fed_scraper.items import FedScraperItem
+from fed_scraper.items import FedScraperItem, serialize_url
 import re
 import pypdfium2 as pdfium
 import io
@@ -114,7 +114,7 @@ class FomcCalendarSpider(scrapy.Spider):
                 break
 
         press_conference["text"] = parse_pdf_from_url(
-            "https://www.federalreserve.gov" + press_conference["url"]
+            serialize_url(press_conference["url"])
         )
 
         yield press_conference
