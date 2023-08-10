@@ -1,19 +1,19 @@
 | Document Kind                                              |   Count | Earliest   | Latest     |
 |:-----------------------------------------------------------|--------:|:-----------|:-----------|
+| agenda                                                     |     580 | 1960-01-12 | 2017-12-13 |
 | record_of_policy_actions                                   |     578 | 1936-03-19 | 1992-12-22 |
-| agenda                                                     |     548 | 1960-01-12 | 2017-12-13 |
-| transcript                                                 |     419 | 1976-03-29 | 2017-12-13 |
-| greenbook_supplement                                       |     414 | 1964-06-17 | 2010-04-28 |
-| bluebook                                                   |     392 | 1965-11-02 | 2010-04-28 |
+| transcript                                                 |     453 | 1976-03-29 | 2017-12-13 |
+| greenbook_supplement                                       |     444 | 1964-06-17 | 2010-04-28 |
+| bluebook                                                   |     424 | 1965-11-02 | 2010-04-28 |
+| beige_book                                                 |     386 | 1983-07-13 | 2017-12-13 |
+| presentation_materials                                     |     352 | 1976-03-29 | 2017-12-13 |
 | historical_minutes                                         |     335 | 1936-03-18 | 1967-05-23 |
-| beige_book                                                 |     328 | 1983-07-13 | 2017-12-13 |
-| presentation_materials                                     |     321 | 1976-03-29 | 2017-12-13 |
+| minutes                                                    |     311 | 1993-02-03 | 2023-06-14 |
+| greenbook_part_one                                         |     307 | 1974-08-20 | 2010-04-28 |
+| greenbook_part_two                                         |     307 | 1974-08-20 | 2010-04-28 |
 | minutes_of_actions                                         |     283 | 1967-06-20 | 1992-12-22 |
-| greenbook_part_one                                         |     275 | 1974-08-20 | 2010-04-28 |
-| greenbook_part_two                                         |     275 | 1974-08-20 | 2010-04-28 |
-| minutes                                                    |     261 | 1993-05-18 | 2023-06-14 |
 | intermeeting_executive_committee_minutes                   |     237 | 1936-03-19 | 1955-06-06 |
-| statement                                                  |     165 | 1994-05-17 | 2023-07-26 |
+| statement                                                  |     173 | 1994-02-04 | 2023-07-26 |
 | redbook                                                    |     143 | 1970-05-26 | 1983-05-24 |
 | greenbook                                                  |     141 | 1964-06-17 | 1979-10-06 |
 | memoranda_of_discussion                                    |     123 | 1967-06-20 | 1976-03-16 |
@@ -22,11 +22,11 @@
 | tealbook_b                                                 |      53 | 2010-06-23 | 2017-12-13 |
 | tealbook_a                                                 |      53 | 2010-06-23 | 2017-12-13 |
 | implementation_note                                        |      46 | 2018-01-31 | 2023-07-26 |
+| memos                                                      |      43 | 1955-01-11 | 2017-02-01 |
 | sep_individual_projections                                 |      37 | 2007-10-31 | 2017-12-13 |
 | sep_participant_key                                        |      25 | 2007-10-31 | 2017-12-13 |
-| memos                                                      |      19 | 1976-01-20 | 2017-02-01 |
 | accessible_material                                        |      17 | 2007-10-31 | 2011-11-02 |
 | statement_on_longer_run_goals_and_monetary_policy_strategy |       5 | 2013-01-30 | 2017-02-01 |
-| staff_statements                                           |       3 | 1980-12-19 | 1989-11-14 |
-| policy_normalization_principles_and_plans                  |       1 | 2014-09-17 | 2014-09-17 |
+| staff_statements                                           |       4 | 1980-12-19 | 1998-08-18 |
 | addendum_to_the_policy_normalization_principles_and_plans  |       1 | 2017-06-14 | 2017-06-14 |
+| policy_normalization_principles_and_plans                  |       1 | 2014-09-17 | 2014-09-17 |
