@@ -1,19 +1,19 @@
 | Document Kind                                              |   Count | Earliest   | Latest     |
 |:-----------------------------------------------------------|--------:|:-----------|:-----------|
 | agenda                                                     |     580 | 1960-01-12 | 2017-12-13 |
-| record_of_policy_actions                                   |     578 | 1936-03-19 | 1992-12-22 |
+| record_of_policy_actions                                   |     577 | 1936-03-19 | 1992-12-22 |
 | transcript                                                 |     453 | 1976-03-29 | 2017-12-13 |
 | greenbook_supplement                                       |     444 | 1964-06-17 | 2010-04-28 |
 | bluebook                                                   |     424 | 1965-11-02 | 2010-04-28 |
 | beige_book                                                 |     386 | 1983-07-13 | 2017-12-13 |
 | presentation_materials                                     |     352 | 1976-03-29 | 2017-12-13 |
 | historical_minutes                                         |     335 | 1936-03-18 | 1967-05-23 |
-| minutes                                                    |     311 | 1993-02-03 | 2023-06-14 |
-| greenbook_part_one                                         |     307 | 1974-08-20 | 2010-04-28 |
+| minutes                                                    |     312 | 1993-02-03 | 2023-06-14 |
 | greenbook_part_two                                         |     307 | 1974-08-20 | 2010-04-28 |
+| greenbook_part_one                                         |     307 | 1974-08-20 | 2010-04-28 |
 | minutes_of_actions                                         |     283 | 1967-06-20 | 1992-12-22 |
 | intermeeting_executive_committee_minutes                   |     237 | 1936-03-19 | 1955-06-06 |
-| statement                                                  |     173 | 1994-02-04 | 2023-07-26 |
+| statement                                                  |     175 | 1994-02-04 | 2023-07-26 |
 | redbook                                                    |     143 | 1970-05-26 | 1983-05-24 |
 | greenbook                                                  |     141 | 1964-06-17 | 1979-10-06 |
 | memoranda_of_discussion                                    |     123 | 1967-06-20 | 1976-03-16 |

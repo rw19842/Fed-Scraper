@@ -148,7 +148,7 @@ class RemoveMissingPipeline(PostExportPipeline):
             num_missing = len(na_rows)
             logging.warning(f"Removed {num_missing} documents with missing values:")
             for index, row in na_rows.iterrows():
-                logging.warning(
+                logging.info(
                     f"meeting_date: {row['meeting_date']}, "
                     f"document_kind: {row['document_kind']}, "
                     f"url:{row['url']}, "
@@ -168,7 +168,7 @@ class DuplicatesPipeline(PostExportPipeline):
                 f"Removing {duplicated.sum()} duplicate document(s) found in {self.all_docs_file}:"
             )
             for index, row in all_fomc_documents[duplicated].iterrows():
-                logging.warning(
+                logging.info(
                     f"meeting_date: {row['meeting_date']}, "
                     f"document_kind: {row['document_kind']}, "
                     f"url:{row['url']}, "
