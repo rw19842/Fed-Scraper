@@ -5,13 +5,33 @@
 
 from scrapy.exceptions import DropItem
 from scrapy.exporters import CsvItemExporter
-from fed_scraper.items import FedScraperItem, serialize_date, serialize_document_kind
+from fed_scraper.items import (
+    serialize_url,
+    serialize_date,
+    serialize_document_kind,
+)
 import re
 import os.path
-from os import mkdir, listdir
+from os import mkdir
 import pandas as pd
 from datetime import datetime, timedelta
 import logging
+
+DATA_DIR = "../data/"
+ALL_DOCS_FILE = "fomc_documents.csv"
+ALL_DOCS_FILE_PATH = DATA_DIR + ALL_DOCS_FILE
+SUB_DATA_DIR = DATA_DIR + "documents_by_type/"
+
+
+class DuplicateUrlPipeline:
+    def open_spider(self, spider):
+        self.scraped_urls = set(pd.read_csv(ALL_DOCS_FILE_PATH)["url"])
+
+    def process_item(self, item, spider):
+        url = serialize_url(item.get("url"))
+        if url in self.scraped_urls:
+            raise DropItem(f"Item with url: {url} already in {ALL_DOCS_FILE}")
+        return item
 
 
 class TextPipeline:
@@ -19,6 +39,7 @@ class TextPipeline:
         clean_text = []
         for text_part in item.get("text"):
             clean_text_part = re.sub(r"\x02", "", text_part)
+            clean_text_part = re.sub(r"\r\n\r\n", ".", text_part)
             clean_text_part = re.sub(r"[\n\r\t]", " ", text_part)
             if text_part != "":
                 clean_text.append(clean_text_part)
@@ -108,7 +129,7 @@ class RemoveMissingPipeline:
 
         if bool(re.fullmatch(r"\s*", item.get("text"))):
             self.num_missing += 1
-            raise DropItem(f"Item text field is whitespace")
+            raise DropItem("Item text field is whitespace")
 
         return item
 
@@ -120,23 +141,18 @@ class RemoveMissingPipeline:
 
 
 class CsvPipeline:
-    data_directory = "../data/"
-    all_docs_file = "fomc_documents.csv"
-    file_path = data_directory + all_docs_file
-
     def open_spider(self, spider):
-        if os.path.isfile(self.file_path):
+        if os.path.isfile(ALL_DOCS_FILE_PATH):
             include_headers_line = False
         else:
             include_headers_line = True
-            if not os.path.isdir(self.data_directory):
-                mkdir(self.data_directory)
+            if not os.path.isdir(DATA_DIR):
+                mkdir(DATA_DIR)
 
-        self.file = open(self.file_path, "ab")
+        self.file = open(ALL_DOCS_FILE_PATH, "ab")
         self.exporter = CsvItemExporter(
             file=self.file,
             include_headers_line=include_headers_line,
-            fields_to_export=list(FedScraperItem.fields),
         )
         self.exporter.start_exporting()
 
@@ -149,45 +165,39 @@ class CsvPipeline:
         return item
 
 
-class PostExportPipeline(CsvPipeline):
-    def open_spider(self, spider):
-        pass
-
+class PostExportPipeline:
     def process_item(self, item, spider):
         return item
-
-    def close_spider(self, spider):
-        pass
 
 
 class DuplicatesPipeline(PostExportPipeline):
     def close_spider(self, spider):
-        all_fomc_documents = pd.read_csv(self.file_path)
+        all_fomc_documents = pd.read_csv(ALL_DOCS_FILE_PATH)
 
         duplicated = all_fomc_documents.duplicated(subset="url", keep="last")
 
         if duplicated.any():
-            logging.warning(
-                f"Removing {duplicated.sum()} duplicate document(s) found in {self.all_docs_file}:"
-            )
             for index, row in all_fomc_documents[duplicated].iterrows():
                 logging.info(
                     f"meeting_date: {row['meeting_date']}, "
                     f"document_kind: {row['document_kind']}, "
                     f"url:{row['url']}, "
                 )
-
-            all_fomc_documents.drop_duplicates(subset="url", keep="last", inplace=True)
-
-            all_fomc_documents.to_csv(
-                self.file_path,
-                index=False,
+            logging.warning(
+                f"Removing {duplicated.sum()} duplicate document(s) found in {ALL_DOCS_FILE}:"
             )
+
+        all_fomc_documents.drop_duplicates(subset="url", keep="last", inplace=True)
+
+        all_fomc_documents.to_csv(
+            ALL_DOCS_FILE_PATH,
+            index=False,
+        )
 
 
 class SortByMeetingDatePipeline(PostExportPipeline):
     def close_spider(self, spider):
-        all_fomc_documents = pd.read_csv(self.file_path)
+        all_fomc_documents = pd.read_csv(ALL_DOCS_FILE_PATH)
         all_fomc_documents.sort_values(
             by="meeting_date",
             inplace=True,
@@ -195,18 +205,15 @@ class SortByMeetingDatePipeline(PostExportPipeline):
         )
 
         all_fomc_documents.to_csv(
-            self.file_path,
+            ALL_DOCS_FILE_PATH,
             index=False,
         )
 
 
 class SplitCsvPipeline(PostExportPipeline):
-    def __init__(self):
-        self.sub_data_dir = self.data_directory + "documents_by_type/"
-
     def close_spider(self, spider):
-        if not os.path.isdir(self.sub_data_dir):
-            mkdir(self.sub_data_dir)
+        if not os.path.isdir(SUB_DATA_DIR):
+            mkdir(SUB_DATA_DIR)
 
         files = [
             {
@@ -253,7 +260,7 @@ class SplitCsvPipeline(PostExportPipeline):
             },
         ]
 
-        all_fomc_documents = pd.read_csv(self.file_path)
+        all_fomc_documents = pd.read_csv(ALL_DOCS_FILE_PATH)
 
         non_misc_document_kinds = []
         for file in files:
@@ -275,6 +282,6 @@ class SplitCsvPipeline(PostExportPipeline):
             df.sort_values(by="meeting_date", inplace=True, na_position="first")
             df.drop_duplicates(subset="url", keep="last", inplace=True)
             df.to_csv(
-                self.sub_data_dir + file["name"],
+                SUB_DATA_DIR + file["name"],
                 index=False,
             )

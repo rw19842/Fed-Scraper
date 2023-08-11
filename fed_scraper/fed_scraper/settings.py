@@ -70,6 +70,7 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
+    "fed_scraper.pipelines.DuplicateUrlPipeline": 50,
     "fed_scraper.pipelines.TextPipeline": 100,
     "fed_scraper.pipelines.ReleaseDatesPipeline": 150,
     "fed_scraper.pipelines.RemoveMissingPipeline": 175,
