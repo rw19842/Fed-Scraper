@@ -73,7 +73,14 @@ class HistoricalMaterialsSpider(scrapy.Spider):
                         re.I,
                     ).group()
 
-                if ".pdf" in fed_scraper_item["url"]:
+                if anchor_text == "HTML" and bool(
+                    re.search(
+                        r"((\d*\.?\d* (KB|MB))? PDF\s*\|\s*HTML)|(HTML\s*\|\s*(\d*\.?\d* (KB|MB))? PDF)",
+                        surrounding_text,
+                    )
+                ):  # handling the case where there is both a PDF and HTML version of the same document
+                    pass
+                elif ".pdf" in fed_scraper_item["url"]:
                     fed_scraper_item["text"] = parse_pdf_from_url(
                         serialize_url(fed_scraper_item["url"])
                     )

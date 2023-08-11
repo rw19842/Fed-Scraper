@@ -4,7 +4,7 @@ import requests
 
 
 def parse_pdf_from_url(url, header_footer_size=65):
-    response = requests.get(url, stream=True)
+    response = requests.get(url=url, stream=True)
     document = pdfium.PdfDocument(io.BytesIO(response.content))
 
     for page in document:
