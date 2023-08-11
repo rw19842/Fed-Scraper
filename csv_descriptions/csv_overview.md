@@ -1,6 +1,6 @@
 | File                                                                    |   Count | Earliest   | Latest     |
 |:------------------------------------------------------------------------|--------:|:-----------|:-----------|
-| [**`fomc_documents.csv`**](fomc_documents.md)                           |    5904 | 1936-03-18 | 2023-07-26 |
+| [**`fomc_documents.csv`**](fomc_documents.md)                           |    5905 | 1936-03-18 | 2023-07-26 |
 | [**`meeting_minutes.csv`**](meeting_minutes.md)                         |    1801 | 1936-03-18 | 2023-06-14 |
 | [**`greenbooks.csv`**](greenbooks.md)                                   |    1260 | 1964-06-17 | 2017-12-13 |
 | [**`miscellaneous.csv`**](miscellaneous.md)                             |     614 | 1955-01-11 | 2017-12-13 |

@@ -13,14 +13,14 @@
 | beige_book                                                 |     265 | 1983-07-13 | 2017-12-13 |
 | minutes                                                    |     246 | 1993-02-03 | 2023-06-14 |
 | intermeeting_executive_committee_minutes                   |     237 | 1936-03-19 | 1955-06-06 |
-| statement                                                  |     174 | 1994-02-04 | 2023-07-26 |
+| statement                                                  |     175 | 1994-02-04 | 2023-07-26 |
 | redbook                                                    |     143 | 1970-05-26 | 1983-05-24 |
 | greenbook                                                  |     141 | 1964-06-17 | 1979-10-06 |
 | memoranda_of_discussion                                    |     123 | 1967-06-20 | 1976-03-16 |
 | accessible_version                                         |     103 | 2001-06-27 | 2012-12-12 |
 | press_conference                                           |      67 | 2012-01-25 | 2023-07-26 |
-| tealbook_b                                                 |      61 | 2010-06-23 | 2017-12-13 |
 | tealbook_a                                                 |      61 | 2010-06-23 | 2017-12-13 |
+| tealbook_b                                                 |      61 | 2010-06-23 | 2017-12-13 |
 | implementation_note                                        |      46 | 2018-01-31 | 2023-07-26 |
 | memos                                                      |      44 | 1955-01-11 | 2017-02-01 |
 | sep_individual_projections                                 |      42 | 2007-10-31 | 2017-12-13 |
@@ -28,6 +28,6 @@
 | accessible_material                                        |      22 | 2007-10-31 | 2012-12-12 |
 | statement_on_longer_run_goals_and_monetary_policy_strategy |       6 | 2012-01-25 | 2017-02-01 |
 | staff_statements                                           |       4 | 1980-12-19 | 1998-08-18 |
+| related_current_faqs                                       |       1 | 2012-09-13 | 2012-09-13 |
 | policy_normalization_principles_and_plans                  |       1 | 2014-09-17 | 2014-09-17 |
 | addendum_to_the_policy_normalization_principles_and_plans  |       1 | 2017-06-14 | 2017-06-14 |
-| related_current_faqs                                       |       1 | 2012-09-13 | 2012-09-13 |
