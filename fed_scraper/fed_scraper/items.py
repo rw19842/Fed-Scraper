@@ -7,7 +7,7 @@ import scrapy
 from datetime import datetime
 import calendar
 import re
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 
 def serialize_document_kind(kind: str):
@@ -49,7 +49,7 @@ def serialize_date(date_string):
 
 
 def serialize_url(relative_url: str):
-    return urljoin("https://www.federalreserve.gov", relative_url.strip())
+    return urljoin("https://www.federalreserve.gov", urlparse(relative_url).path)
 
 
 class FedScraperItem(scrapy.Item):
