@@ -1,12 +1,12 @@
 | File                                                                    |   Count | Earliest   | Latest     |
 |:------------------------------------------------------------------------|--------:|:-----------|:-----------|
-| [**`fomc_documents.csv`**](fomc_documents.md)                           |    6122 | 1936-03-18 | 2023-07-26 |
-| [**`meeting_minutes.csv`**](meeting_minutes.md)                         |    3706 | 1936-03-18 | 2023-06-14 |
-| [**`greenbooks.csv`**](greenbooks.md)                                   |    2512 | 1964-06-17 | 2017-12-13 |
-| [**`miscellaneous.csv`**](miscellaneous.md)                             |    1194 | 1955-01-11 | 2017-12-13 |
-| [**`agendas.csv`**](agendas.md)                                         |    1168 | 1960-01-12 | 2017-12-13 |
-| [**`redbooks.csv`**](redbooks.md)                                       |    1062 | 1970-05-26 | 2017-12-13 |
-| [**`bluebooks.csv`**](bluebooks.md)                                     |     962 | 1965-11-02 | 2017-12-13 |
-| [**`meeting_transcripts.csv`**](meeting_transcripts.md)                 |     914 | 1976-03-29 | 2017-12-13 |
-| [**`policy_statements.csv`**](policy_statements.md)                     |     351 | 1994-02-04 | 2023-07-26 |
-| [**`press_conference_transcript.csv`**](press_conference_transcript.md) |      90 | 2011-04-27 | 2023-07-26 |
+| [**`fomc_documents.csv`**](fomc_documents.md)                           |    5891 | 1936-03-18 | 2023-07-26 |
+| [**`meeting_minutes.csv`**](meeting_minutes.md)                         |    1801 | 1936-03-18 | 2023-06-14 |
+| [**`greenbooks.csv`**](greenbooks.md)                                   |    1260 | 1964-06-17 | 2017-12-13 |
+| [**`miscellaneous.csv`**](miscellaneous.md)                             |     614 | 1955-01-11 | 2017-12-13 |
+| [**`agendas.csv`**](agendas.md)                                         |     588 | 1960-01-12 | 2017-12-13 |
+| [**`bluebooks.csv`**](bluebooks.md)                                     |     485 | 1965-11-02 | 2017-12-13 |
+| [**`meeting_transcripts.csv`**](meeting_transcripts.md)                 |     461 | 1976-03-29 | 2017-12-13 |
+| [**`redbooks.csv`**](redbooks.md)                                       |     408 | 1970-05-26 | 2017-12-13 |
+| [**`policy_statements.csv`**](policy_statements.md)                     |     207 | 1994-02-04 | 2023-07-26 |
+| [**`press_conference_transcript.csv`**](press_conference_transcript.md) |      67 | 2012-01-25 | 2023-07-26 |
