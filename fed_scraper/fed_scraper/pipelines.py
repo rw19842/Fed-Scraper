@@ -21,11 +21,15 @@ DATA_DIR = "../data/"
 ALL_DOCS_FILE = "fomc_documents.csv"
 ALL_DOCS_FILE_PATH = DATA_DIR + ALL_DOCS_FILE
 SUB_DATA_DIR = DATA_DIR + "documents_by_type/"
+MEETING_DATES_FILE_PATH = "../meeting_dates.csv"
 
 
 class DuplicateUrlPipeline:
     def open_spider(self, spider):
-        self.scraped_urls = set(pd.read_csv(ALL_DOCS_FILE_PATH)["url"])
+        if os.path.isfile(ALL_DOCS_FILE_PATH):
+            self.scraped_urls = set(pd.read_csv(ALL_DOCS_FILE_PATH)["url"])
+        else:
+            self.scraped_urls = []
 
     def process_item(self, item, spider):
         url = serialize_url(item.get("url"))
@@ -54,6 +58,14 @@ class ReleaseDatesPipeline:
     def __init__(self):
         self.num_release_dates_filled = 0
 
+        if os.path.isfile(MEETING_DATES_FILE_PATH):
+            self.meeting_dates = [
+                datetime.strptime(date_string, "%Y-%m-%d").date()
+                for date_string in pd.read_csv(MEETING_DATES_FILE_PATH)["meeting_date"]
+            ]
+        else:
+            self.meeting_dates = []
+
     def close_spider(self, spider):
         if self.num_release_dates_filled > 0:
             logging.warning(
@@ -68,7 +80,7 @@ class ReleaseDatesPipeline:
 
         document_kind = serialize_document_kind(item["document_kind"])
         meeting_date = serialize_date(item["meeting_date"])
-        subsequent_meeting_date = meeting_date + timedelta(weeks=6)
+        subsequent_meeting_date = self.get_subsequent_meeting_date(meeting_date)
         annual_report_date = datetime(meeting_date.year, 4, 1).date()
 
         if document_kind == "minutes":
@@ -95,9 +107,6 @@ class ReleaseDatesPipeline:
                 datetime(1964, 1, 1).date(), meeting_date + timedelta(days=5 * 365.25)
             )
 
-        elif document_kind == "memoranda_of_discussion":
-            item["release_date"] = meeting_date + timedelta(days=5 * 365.25)
-
         elif document_kind == "transcript":
             item["release_date"] = max(
                 datetime(1993, 11, 1).date(), meeting_date + timedelta(days=5 * 365.25)
@@ -110,10 +119,45 @@ class ReleaseDatesPipeline:
         ]:
             item["release_date"] = meeting_date
 
-        else:
+        elif document_kind in [
+            "memoranda_of_discussion",
+            "agenda",
+            "greenbook",
+            "greenbook_part_one",
+            "greenbook_part_two",
+            "greenbook_supplement",
+            "tealbook_a",
+            "tealbook_b",
+        ]:
             item["release_date"] = meeting_date + timedelta(days=5 * 365.25)
 
+        else:
+            self.num_release_dates_filled -= 1
+
         return item
+
+    def get_subsequent_meeting_date(self, date_input):
+        if date_input not in self.meeting_dates:
+            logging.warning(
+                f"Meeting dates file may be incomplete:"
+                f" {date_input} is not in {MEETING_DATES_FILE_PATH}"
+            )
+
+        subsequent_date = datetime.max.date()
+        for date in self.meeting_dates:
+            if date <= date_input:
+                pass
+            else:
+                if date < subsequent_date:
+                    subsequent_date = date
+
+        if subsequent_date == datetime.max.date():
+            logging.warning(
+                f"Assuming subsequent meeting to {date_input} is in 6 weeks."
+            )
+            subsequent_date = date_input + timedelta(weeks=6)
+
+        return subsequent_date
 
 
 class RemoveMissingPipeline:
@@ -239,7 +283,10 @@ class SplitCsvPipeline(PostExportPipeline):
                 "name": "policy_statements.csv",
                 "document_kinds": ["statement", "implementation_note"],
             },
-            {"name": "agendas.csv", "document_kinds": ["agenda"]},
+            {
+                "name": "agendas.csv",
+                "document_kinds": ["agenda"],
+            },
             {
                 "name": "greenbooks.csv",
                 "document_kinds": [
