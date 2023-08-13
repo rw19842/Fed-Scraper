@@ -43,13 +43,14 @@ class TextPipeline:
         clean_text = []
         for text_part in item.get("text"):
             clean_text_part = re.sub(r"\x02", "", text_part)
-            clean_text_part = re.sub(r"\r\n\r\n", ".", text_part)
+            clean_text_part = re.sub(r"(\r\n)(\t)*(\r\n)", ".", text_part)
             clean_text_part = re.sub(r"[\n\r\t]", " ", text_part)
             if text_part != "":
                 clean_text.append(clean_text_part)
         clean_text = " ".join(clean_text).strip()
         clean_text = re.sub(r" +", " ", clean_text)
         clean_text = re.sub(r" \.", ".", clean_text)
+        clean_text = re.sub(r"\x02", "", clean_text)
         item["text"] = clean_text
         return item
 
@@ -160,9 +161,41 @@ class ReleaseDatesPipeline:
         return subsequent_date
 
 
+class MeetingDatesPipeline:
+    def __init__(self):
+        if os.path.isfile(MEETING_DATES_FILE_PATH):
+            self.meeting_dates = [
+                datetime.strptime(date_string, "%Y-%m-%d").date()
+                for date_string in pd.read_csv(MEETING_DATES_FILE_PATH)["meeting_date"]
+            ]
+        else:
+            self.meeting_dates = None
+
+    def process_item(self, item, spider):
+        if self.meeting_dates is None:
+            logging.warning(f"MeetingDatesPipeline requires {MEETING_DATES_FILE_PATH}")
+            return item
+
+        meeting_date = datetime.max.date()
+        item["release_date"] = serialize_date(item.get("release_date"))
+        release_date = item.get("release_date")
+        for date in self.meeting_dates:
+            if date > release_date and date < meeting_date:
+                meeting_date = date
+
+        if meeting_date == datetime.max.date():
+            logging.warning(
+                f"Either meeting has not happened yet or {MEETING_DATES_FILE_PATH} is incomplete."
+            )
+        else:
+            item["meeting_date"] = meeting_date
+
+        return item
+
+
 class RemoveMissingPipeline:
     def __init__(self):
-        self.check_missing = ["document_kind", "meeting_date", "text", "url"]
+        self.check_missing = ["document_kind", "text", "url"]
         self.num_missing = 0
 
     def process_item(self, item, spider):
@@ -223,8 +256,10 @@ class DuplicatesPipeline(PostExportPipeline):
         if duplicated.any():
             for index, row in all_fomc_documents[duplicated].iterrows():
                 logging.info(
-                    f"meeting_date: {row['meeting_date']}, "
+                    "Removed duplicate:"
                     f"document_kind: {row['document_kind']}, "
+                    f"meeting_date: {row['meeting_date']}, "
+                    f"release_date: {row['release_date']}, "
                     f"url:{row['url']}, "
                 )
             logging.warning(
